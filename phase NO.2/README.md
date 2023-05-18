@@ -15,7 +15,7 @@ This program acts as a lexical analyzer. To do this, the following steps are tak
 - Semanticـanalyzer.py: It displays the requested items in the project form
 
 ### Read.py
-
+First, we prepare a class to read the code.
 ```
 class Read_code:
     def __init__(code, body):
@@ -23,11 +23,13 @@ class Read_code:
         code.body = body
 ```
 
-
+After receiving the line number, this function returns the contents of that line.
 ```
 def get_line(code, line_no):
   return code.body[line_no]
 ```
+
+This function receives the contents of the line and removes the leading spaces for subsequent functions.
 
 ```
     def remove_space(code, line_no):
@@ -37,6 +39,7 @@ def get_line(code, line_no):
         #print("Line ", line_no, " is: ", code.body[line_no])
         return new_str
 ```
+This function counts the number of all lines of code.
 
 ```
     def line_counter(code):
@@ -47,6 +50,7 @@ def get_line(code, line_no):
 ```
 
 
+It specifies how deep we are in the code. For example, if the current class is at depth zero, its subset functions are placed at depth one. Now, if these functions themselves have commands, we consider these commands in depth 2.
 ```
     def depth_finder(code, line_no):
         space_counter = 0
@@ -60,7 +64,7 @@ def get_line(code, line_no):
             else:
                 return space_counter/4
 ```
-
+In any part of the code, it tells us the number of parrots left until the next bracket and the completion of the current depth.
 ```
     def next_braket(code, line_no): 
         current_line = line_no
@@ -76,7 +80,7 @@ def get_line(code, line_no):
                     open_braket_counter = open_braket_counter-1
 ```
 
-
+Specifies the name of the class we are currently in. We will use this function in the following extractions.
 ```
     def prev_class_name(code, line_no):
         class_name = ""
@@ -94,7 +98,7 @@ def get_line(code, line_no):
             return(class_name)
 ```
 
-
+Confirms the import
 ```
     def find_imports(code):
         Line = 0
@@ -112,7 +116,7 @@ def get_line(code, line_no):
                 
         return(imports)
 ```
-
+Confirms the existence of the field
 ```
     def field_confirm(code, line_no):
         keywords = ['int', 'bool', 'float', 'string', 'double']
@@ -132,6 +136,10 @@ def get_line(code, line_no):
             else:
                 return False
 ```
+If it is a field, it returns the field information as an array. This array contains the following information:
+- type
+- name
+- isDefined
 
 ```
     def get_field(code, line_no):
@@ -156,7 +164,7 @@ def get_line(code, line_no):
         return(field_type, field_name, isDefined)
 ```
 
-
+They are a confirmation of class and functionality.
 ```
     def def_confirm(code, line_no):
         s = code.body[line_no]
@@ -172,6 +180,11 @@ def get_line(code, line_no):
         else:
             return False
 ```
+As its name suggests, it confirms being a scope. The scopes are as follows:
+- program
+- class
+- function
+- conditions and loops
 
 ```
     def scope_confirm(code, line_no):
@@ -208,7 +221,7 @@ def get_line(code, line_no):
         else:
             return (False, 'null')
 ```
-
+It returns all the information we need that are in a function as an array.
 ```
 def extract_def(code, line_no, class_name):
         def_depth = code.depth_finder(line_no)#find depth
@@ -258,6 +271,11 @@ def extract_def(code, line_no, class_name):
         return(def_depth, start_line, end_line, Type, name, input_type, input_name, field_type, field_name, field_defined)
 ```
 
+This array is as follows:
+```
+return(def_depth, start_line, end_line, Type, name, input_type, input_name, field_type, field_name, field_defined)
+```
+It returns all the information we need that are in a class as an array.
 ```
     def extract_class(code, line_no):
         def_depth = code.depth_finder(line_no)#find depth
@@ -287,7 +305,12 @@ def extract_def(code, line_no, class_name):
                 
         return(def_depth, start_line, end_line, name, parents, fields, functions)
 ```
-
+This array is as follows:
+The element of the function that you saw above is the same as the previous extraction function that we saw earlier
+```
+return(def_depth, start_line, end_line, name, parents, fields, functions)
+```
+According to the previous functions, it identifies the scopes and extracts them
 ```
     def extract_scope(code, line_no):
         resault = ""
