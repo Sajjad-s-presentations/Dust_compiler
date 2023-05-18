@@ -110,16 +110,13 @@ class Read_code:
             open_parantes_index = field_type.index("[")
             close_parantes_index = field_type.index("]")
             field_type = field_type[:open_parantes_index] + field_type[close_parantes_index+1:]
-            
-            
+           
+        
+        
+        Defined = ['int', 'float', 'string', 'bool']    
         isDefined = False
-        if "=" in s2:
+        if field_type in Defined:
             isDefined = True
-            field_type = s[0]
-            field_name = s[2]
-        else:
-            field_type = s[0]
-            field_name = s[1]
             
         return(field_type, field_name, isDefined)
         
@@ -163,11 +160,11 @@ class Read_code:
         
         if first_word in conditions:
             confirm = 1
-            scope = "condition"
+            scope = ("condition", first_word)
         
         if first_word in loops:
             confirm = 1
-            scope = "loop"
+            scope = ("loop", first_word)
         
         if(confirm == 1):
             return (True, scope)
@@ -212,13 +209,15 @@ class Read_code:
                     
         field_type = []
         field_name = []
+        field_defined = []
         for counter in range(start_line+1, end_line):      
             if(code.field_confirm(counter)):
                 field = code.get_field(counter)
                 field_type.append(field[0])
                 field_name.append(field[1])
+                field_defined.append(field[2])
             
-        return(def_depth, start_line, end_line, Type, name, input_type, input_name, field_type, field_name)
+        return(def_depth, start_line, end_line, Type, name, input_type, input_name, field_type, field_name, field_defined)
     
     
     def extract_global_def(code, line_no, class_name):
@@ -246,13 +245,15 @@ class Read_code:
                     
         field_type = []
         field_name = []
+        field_defined = []
         for counter in range(start_line+1, end_line):      
             if(code.field_confirm(counter)):
                 field = code.get_field(counter)
                 field_type.append(field[0])
                 field_name.append(field[1])
+                field_defined.append(field[2])
             
-        return(def_depth, start_line, end_line, Type, name, input_type, input_name, field_type, field_name)
+        return(def_depth, start_line, end_line, Type, name, input_type, input_name, field_type, field_name, field_defined)
     
     
     
@@ -285,17 +286,23 @@ class Read_code:
         return(def_depth, start_line, end_line, name, parents, fields, functions)
     
     def extract_scope(code, line_no):
+        resault = ""
         if(code.scope_confirm(line_no)[0]):
             scope = code.scope_confirm(line_no)[1]
+            scope2 = code.scope_confirm(line_no)[1][0]
             if(scope == 'class'):
                 resault = (scope, code.extract_class(line_no))
             if(scope == 'method'):
                 class_name = code.prev_class_name(line_no)
                 resault = (scope, code.extract_def(line_no, class_name))
-            if(scope == 'condition'):
-                resault = (scope, line_no+1)
-            if(scope == 'loop'):
-                resault = (scope, line_no+1)
+            if(scope2 == 'condition'):
+            	l = (line_no+1,)
+            	scope = scope + l
+            	resault = (scope[0], scope)
+            if(scope2 == 'loop'):
+            	l = (line_no+1,)
+            	scope = scope + l
+            	resault = (scope[0], scope)
                 
             return(resault)
         else:
